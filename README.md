@@ -10,9 +10,9 @@ Bem-vindo ao **SIM IF**, um projeto de simulação de cidades inspirado em jogos
 
 O **SIM IF** visa:
 
-1. **Educar** melhorar os conhecimentos de Programação Orientada a Objetos de uma forma prática e divertida.
-2. **simulação** rodar uma simulação de uma cidade digital.
-3. **Explorar** conversar com as cidades dos outros alunos que serão construídas.
+1. **Educar:** melhorar os conhecimentos de Programação Orientada a Objetos de uma forma prática e divertida.
+2. **simulação:** rodar uma simulação de uma cidade digital.
+3. **Explorar:** conversar com as cidades dos outros alunos que serão construídas.
 
 ## 🛠️ Tecnologias Utilizadas
 
