@@ -22,4 +22,4 @@ A aplicação foi desenvolvida utilizando:
 (inicialmente a aplicação foi iniciada em java, mas por questões de compatibilidade, os códigos foram alterados para python)
 
 ## 📦 Estrutura do Projeto
-(A ser implementada)
+(A ser implementada...)
