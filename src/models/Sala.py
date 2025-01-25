@@ -31,7 +31,7 @@ class Sala:
     
     
     def entrar(self, pessoa):
-        if self.__verificaCapacidade() :
+        if self.__verificaCapacidade():
             self.__pessoas.append(pessoa)
             self.__setStatus()
             return True
