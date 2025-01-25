@@ -1,9 +1,9 @@
 class Sala:
 
     def __init__(self, nome, ocupacao):
-        self.__nome = nome;
-        self.__ocupacao = ocupacao;
-        self.__status = 1;
+        self.__nome = nome
+        self.__ocupacao = ocupacao
+        self.__status = 1
         self.__pessoas = []
 
     def getNome(self):
