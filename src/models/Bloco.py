@@ -1,9 +1,10 @@
 class Bloco:
     
     # Construtor
-    def __init__(self, corredor):
+    def __init__(self, nome, corredor, listaSalas):
+        self.__nome = nome
         self.__corredor = corredor
-        self.__listaSalas = []
+        self.__listaSalas = listaSalas
         
     # Encapsulamento
     def getCorredor(self):
