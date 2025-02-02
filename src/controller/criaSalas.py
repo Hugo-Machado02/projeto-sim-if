@@ -1,9 +1,8 @@
 from models.Sala import Sala
 
-listaSalas = []
-
 def criacaoSalas(num):
+    listaSalas = []
     for i in range(num):
-        pessoa = Sala(f"Sala {i + 1}", f"Informatica {i + 1}")
-        listaSalas.append(pessoa)
+        sala = Sala(f"Sala {i + 1}", 5)
+        listaSalas.append(sala)
     return listaSalas
