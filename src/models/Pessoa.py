@@ -2,14 +2,7 @@ import random
 
 class Pessoa:
     #Construtor 1
-    def __init__(self, nome, sobrenome):
-        self.__nome = nome
-        self.__sobrenome = sobrenome
-        self.__origem = "Natural"
-        self.__espera = 0
-
-    #Construtor 2
-    def __init__(self, nome, sobrenome, origem):
+    def __init__(self, nome, sobrenome, origem="Natural"):
         self.__nome = nome
         self.__sobrenome = sobrenome
         self.__origem = origem
