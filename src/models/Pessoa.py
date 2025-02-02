@@ -1,31 +1,36 @@
 import random
 
 class Pessoa:
-    #Construtor
-    def __init__(self, nome, localAtual, destino):
+    #Construtor 1
+    def __init__(self, nome, sobrenome):
         self.__nome = nome
-        self.__localAtual = localAtual
+        self.__sobrenome = sobrenome
+        self.__origem = "Natural"
         self.__espera = 0
-        self.__destino = destino
+
+    #Construtor 2
+    def __init__(self, nome, sobrenome, origem):
+        self.__nome = nome
+        self.__sobrenome = sobrenome
+        self.__origem = origem
+        self.__espera = 0
 
     # encapsulamento e métodos
     def getNome(self):
-        return self.__nome
-    
-    def getLocalAtual(self):
-        return self.__localAtual
+        return f"{self.__nome} {self.__sobrenome}"
+
+    def getOrigem(self):
+        return self.__origem
     
     def getEspera(self):
         return self.__espera
-    
-    # def setEspera(self, espera):
-    #     self.__destino = espera
 
-    def getDestino(self):
-        return self.__destino
-    
-    def setDestino(self, destino):
-        self.__destino = destino
-    
-    def decisao(self):
-        return random.choice([0,1])
+    def setEspera(self):
+        if self.getEspera() == 0:
+            self.__espera = 1
+        else:
+            self.__espera = 0
+            
+    #Decisao da Pessoa
+    def decisao(self, opcoes):
+        return random.choice(opcoes)
