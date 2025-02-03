@@ -1,8 +1,8 @@
 class Sala:
 
-    def __init__(self, nome, ocupacao):
+    def __init__(self, nome, capacidade):
         self.__nome = nome
-        self.__ocupacao = ocupacao
+        self.__capacidade = capacidade
         self.__status = 1
         self.__pessoas = []
 
@@ -10,8 +10,8 @@ class Sala:
         return self.__nome
     
     
-    def getOcupacao(self):
-        return self.__ocupacao
+    def getCapacidade(self):
+        return self.__capacidade
     
     
     def getStatus(self):
@@ -19,11 +19,11 @@ class Sala:
     
     
     def __setStatus(self):
-        if self.quantidadePessoas() == self.getOcupacao() and self.getOcupacao() == 1:
-            self.__ocupacao = 0
+        if self.quantidadePessoas() == self.getCapacidade() and self.getCapacidade() == 1:
+            self.__capacidade = 0
 
-        elif self.quantidadePessoas() < self.getOcupacao() and self.getOcupacao() == 0:
-            self.__ocupacao = 1
+        elif self.quantidadePessoas() < self.getCapacidade() and self.getCapacidade() == 0:
+            self.__capacidade = 1
 
 
     def getPessoas(self):
@@ -53,7 +53,7 @@ class Sala:
 
         
     def __verificaCapacidade(self):
-        if self.quantidadePessoas() < self.getOcupacao():
+        if self.quantidadePessoas() < self.getCapacidade():
             return True
         else:
             return False
