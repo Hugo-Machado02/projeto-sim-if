@@ -7,6 +7,9 @@ class Bloco:
         self.__listaSalas = listaSalas
         
     # Encapsulamento
+    def getNome(self):
+        return self.__nome
+
     def getCorredor(self):
         return self.__corredor
     
