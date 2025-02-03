@@ -13,10 +13,10 @@ class Corredor:
         return self.__listaPessoas
         
     # Funções
-    def adicionarPessoa(self, pessoa):
+    def adicionaPessoa(self, pessoa):
         self.__listaPessoas.append(pessoa)
         
-    def removerPessoa(self, pessoa):
+    def removePessoa(self, pessoa):
         if self.__listaPessoas:
             self.__listaPessoas.remove(pessoa)
         else:
