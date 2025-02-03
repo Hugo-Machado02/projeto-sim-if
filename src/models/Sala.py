@@ -30,7 +30,7 @@ class Sala:
         return self.__pessoas
     
     
-    def entrar(self, pessoa):
+    def adicionaPessoa(self, pessoa):
         if self.__verificaCapacidade():
             self.__pessoas.append(pessoa)
             self.__setStatus()
@@ -41,7 +41,7 @@ class Sala:
             return False
         
 
-    def sair(self, pessoa):
+    def removePessoa(self, pessoa):
         if self.quantidadePessoas() > 0:
             self.__pessoas.remove(pessoa)
             self.__setStatus()
