@@ -10,5 +10,5 @@ class Cidade:
     def getcorredorPrincipal(self):
         return self.__corredorPrincipal
     
-    def getcorredorPrincipal(self):
+    def getlistaBlocos(self):
         return self.__listaBlocos
