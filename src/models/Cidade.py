@@ -1,14 +1,14 @@
 class Cidade:
     def __init__(self, nome, corredor, listaBlocos):
         self.__nome = nome
-        self.__corredorPrincipal = corredor
+        self.__corredor = corredor
         self.__listaBlocos = listaBlocos
     
-    def getnome(self):
+    def getNome(self):
         return self.__nome
     
-    def getcorredorPrincipal(self):
-        return self.__corredorPrincipal
+    def getCorredor(self):
+        return self.__corredor
     
     def getlistaBlocos(self):
         return self.__listaBlocos
