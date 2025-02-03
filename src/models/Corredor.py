@@ -2,7 +2,7 @@ class Corredor:
     
     # Construtor
     def __init__(self):
-        self.__capacidade = 40
+        self.__capacidade =  80
         self.__listaPessoas = []
         
     # Encapsulamento
@@ -11,6 +11,9 @@ class Corredor:
     
     def getListaPessoas(self):
         return self.__listaPessoas
+    
+    def getQuantidadePessoas(self):
+        return len(self.__listaPessoas)
         
     # Funções
     def adicionaPessoa(self, pessoa):
