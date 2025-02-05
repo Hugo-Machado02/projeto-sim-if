@@ -1,8 +1,9 @@
-class Corredor:
+from abc import ABC, abstractmethod
+
+class Corredor(ABC):
     
-    # Construtor
-    def __init__(self):
-        self.__capacidade =  80
+    def __init__(self, capacidade):
+        self.__capacidade = capacidade
         self.__listaPessoas = []
         
     # Encapsulamento
@@ -24,5 +25,8 @@ class Corredor:
             self.__listaPessoas.remove(pessoa)
         else:
             print("Não há nenhuma pessoa no corredor!")
-            
     
+    #implementação do método abstrato
+    @abstractmethod
+    def executaCorredor(self):
+        pass
