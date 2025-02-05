@@ -25,5 +25,5 @@ class Pessoa:
             self.__espera = 0
             
     #Decisao da Pessoa
-    def decisao(self, opcoes):
+    def getDecisao(self, opcoes):
         return random.choice(opcoes)
