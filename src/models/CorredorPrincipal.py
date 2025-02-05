@@ -18,7 +18,7 @@ class CorredorPrincipal(Corredor):
             if pessoas:
                 for pessoa in pessoas:
                     if not continuarLocal(pessoa):
-                        enviaLocal(pessoa, cidade.getCorredor(), listaDestinos)
+                        enviaLocal(pessoa, self, listaDestinos)
                         time.sleep(1)
                     imprimirCidade(cidade)
             else:

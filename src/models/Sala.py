@@ -29,7 +29,7 @@ class Sala:
             self.__capacidade = 1
 
 
-    def getPessoas(self):
+    def getListaPessoas(self):
         return self.__pessoas
     
     
@@ -62,11 +62,18 @@ class Sala:
             return False
         
     def getQuantidadePessoas(self):
-        return len(self.getPessoas())
+        return len(self.getListaPessoas())
     
-    def executaSalas(self, sala, corredorBloco):
-        for pessoa in self.getPessoas():
-            if not continuarLocal(pessoa):
-                enviaLocal(pessoa, sala, corredorBloco)
-            imprimirCidade()
-            time.sleep(3)
+    def executaSalas(self, cidade, corredorBloco):
+        while True:
+            pessoas = self.getListaPessoas()
+            if pessoas:
+                for pessoa in pessoas:
+                    if not continuarLocal(pessoa):
+                        enviaLocal(pessoa, self, corredorBloco)
+                        time.sleep(1)
+                    imprimirCidade(cidade)
+            else:
+                print(f"Näo Possui mais Pessoas na {self.getNome()}")
+                time.sleep(1)
+                break

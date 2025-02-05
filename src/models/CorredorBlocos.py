@@ -9,18 +9,17 @@ class CorredorBlocos(Corredor):
         super().__init__(capacidade)
 
     # Implementação do método abstrato
-    def executaCorredor(self, cidade, corredorBloco, listaDestinos):
+    def executaCorredor(self, cidade, listaDestinos, nome):
         while True:
             pessoas = self.getListaPessoas()
-            destinos = listaDestinos
             if pessoas:
                 for pessoa in pessoas:
                     if not continuarLocal(pessoa):
-                        enviaLocal(pessoa, corredorBloco, destinos)
+                        enviaLocal(pessoa, self, listaDestinos)
                         imprimirCidade(cidade)
                         time.sleep(1)
             else:
-                print("Não Possui Mais Pessoas no Corredor do Bloco - ")
+                print(f"Não Possui Mais Pessoas no Corredor - {nome}")
                 time.sleep(1)
                 break
             
