@@ -32,12 +32,11 @@ class Bloco:
             print("Não há nenhuma sala!")
 
     #Funcão de Ação da Classe execucaoBloco
-    def execucaoBlocos(self, cidade):
-        corredorBloco = self.getCorredor()
-        salas = self.getListaSalas()
-        # for sala in salas:
-        #     sala.executaSalas(sala, corredorBloco)
-        #for responsável pelo corredor
-        salas.append(cidade.getCorredor())
-        self.getCorredor().executaCorredor(cidade, corredorBloco, salas)
-        time.sleep(1)
+    def execucaoBlocos(self, cidade, lista):
+        if self.getCorredor().getListaPessoas():
+            self.getCorredor().executaCorredor(cidade, lista, self.getNome())
+            time.sleep(1)
+
+        if self.__listaSalas:
+            for sala in self.getListaSalas():
+                sala.executaSalas(cidade, [self.getCorredor()])
