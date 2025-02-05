@@ -63,3 +63,10 @@ class Sala:
         
     def getQuantidadePessoas(self):
         return len(self.getPessoas())
+    
+    def executaSalas(self, sala, corredorBloco):
+        for pessoa in self.getPessoas():
+            if not continuarLocal(pessoa):
+                enviaLocal(pessoa, sala, corredorBloco)
+            imprimirCidade()
+            time.sleep(3)
