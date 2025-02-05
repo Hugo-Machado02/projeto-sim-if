@@ -1,3 +1,6 @@
+from utils.operacoes import continuarLocal, enviaLocal, imprimirCidade
+import time
+
 class Sala:
 
     def __init__(self, nome, capacidade):
@@ -19,10 +22,10 @@ class Sala:
     
     
     def __setStatus(self):
-        if self.quantidadePessoas() == self.getCapacidade() and self.getCapacidade() == 1:
+        if self.getQuantidadePessoas() == self.getCapacidade() and self.getCapacidade() == 1:
             self.__capacidade = 0
 
-        elif self.quantidadePessoas() < self.getCapacidade() and self.getCapacidade() == 0:
+        elif self.getQuantidadePessoas() < self.getCapacidade() and self.getCapacidade() == 0:
             self.__capacidade = 1
 
 
@@ -42,7 +45,7 @@ class Sala:
         
 
     def removePessoa(self, pessoa):
-        if self.quantidadePessoas() > 0:
+        if self.getQuantidadePessoas() > 0:
             self.__pessoas.remove(pessoa)
             self.__setStatus()
             return True
@@ -53,10 +56,10 @@ class Sala:
 
         
     def __verificaCapacidade(self):
-        if self.quantidadePessoas() < self.getCapacidade():
+        if self.getQuantidadePessoas() < self.getCapacidade():
             return True
         else:
             return False
         
-    def quantidadePessoas(self):
+    def getQuantidadePessoas(self):
         return len(self.getPessoas())
