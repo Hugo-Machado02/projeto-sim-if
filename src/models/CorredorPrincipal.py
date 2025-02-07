@@ -4,8 +4,8 @@ import time
 
 class CorredorPrincipal(Corredor):
 
-    def __init__(self, capacidade):
-        super().__init__(capacidade)
+    def __init__(self, nome, capacidade):
+        super().__init__(nome, capacidade)
 
     def incluiPessoas(self, listaPessoas):
         for pessoa in listaPessoas:
@@ -19,9 +19,11 @@ class CorredorPrincipal(Corredor):
                 for pessoa in pessoas:
                     if not continuarLocal(pessoa):
                         enviaLocal(pessoa, self, listaDestinos)
-                        time.sleep(1)
-                    imprimirCidade(cidade)
+                    #imprimirCidade(cidade)
+                    else:
+                        print(f"{pessoa.getNome()} Decidiu ficar no Local")
+                        print("===============================================================================================")
+                        
+                    time.sleep(0.4)
             else:
-                print("Näo Possui mais Pessoas no Corredor principal")
-                time.sleep(1)
                 break
