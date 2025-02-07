@@ -7,7 +7,7 @@ def geraBlocos(numBlocos, numSalas):
     blocos = []
     for i in range(numBlocos):
         salas = criacaoSalas(numSalas)
-        corredor = CorredorBlocos(50)
+        corredor = CorredorBlocos(f"Corredor - {nomes[i]}", 50)
         bloco = Bloco(nomes[i], corredor, salas)
         blocos.append(bloco)
     return blocos
