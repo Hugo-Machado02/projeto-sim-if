@@ -1,5 +1,3 @@
-from utils.operacoes import imprimirCidade
-import time
 class Bloco:
     
     # Construtor
@@ -30,13 +28,3 @@ class Bloco:
             self.__listaSalas.remove(sala)
         else:
             print("Não há nenhuma sala!")
-
-    #Funcão de Ação da Classe execucaoBloco
-    def execucaoBlocos(self, cidade, lista):
-        if self.getCorredor().getListaPessoas():
-            self.getCorredor().executaCorredor(cidade, lista, self.getNome())
-            time.sleep(0.4)
-
-        if self.__listaSalas:
-            for sala in self.getListaSalas():
-                sala.executaSalas(cidade, [self.getCorredor()])
