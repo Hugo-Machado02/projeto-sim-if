@@ -1,4 +1,3 @@
-import time
 class Cidade:
     def __init__(self, nome, corredor, listaBlocos):
         self.__nome = nome
