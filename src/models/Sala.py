@@ -71,9 +71,10 @@ class Sala:
                 for pessoa in pessoas:
                     if not continuarLocal(pessoa):
                         enviaLocal(pessoa, self, corredorBloco)
-                        time.sleep(1)
-                    imprimirCidade(cidade)
+                    #imprimirCidade(cidade)
+                    else:
+                        print(f"{pessoa.getNome()} Decidiu ficar no Local")
+                        print("===============================================================================================")
+                    time.sleep(0.4)
             else:
-                print(f"Näo Possui mais Pessoas na {self.getNome()}")
-                time.sleep(1)
                 break

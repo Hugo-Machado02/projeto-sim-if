@@ -5,8 +5,8 @@ import time
 
 class CorredorBlocos(Corredor):
 
-    def __init__(self, capacidade):
-        super().__init__(capacidade)
+    def __init__(self, nome, capacidade):
+        super().__init__(nome, capacidade)
 
     # Implementação do método abstrato
     def executaCorredor(self, cidade, listaDestinos, nome):
@@ -16,10 +16,12 @@ class CorredorBlocos(Corredor):
                 for pessoa in pessoas:
                     if not continuarLocal(pessoa):
                         enviaLocal(pessoa, self, listaDestinos)
-                        imprimirCidade(cidade)
-                        time.sleep(1)
+                        #imprimirCidade(cidade)
+                    else:
+                        print(f"{pessoa.getNome()} Decidiu ficar no Local")
+                        print("===============================================================================================")
+
+                    time.sleep(0.4)
             else:
-                print(f"Não Possui Mais Pessoas no Corredor - {nome}")
-                time.sleep(1)
                 break
             
