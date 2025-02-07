@@ -1,29 +1,53 @@
 from rich.console import Console
 from rich.table import Table
-import random
-import time
+import time, random, os
+from dotenv import load_dotenv
+
+load_dotenv()
+NUM_BLOCOS = int(os.getenv("NUM_BLOCOS"))
+NUM_SALAS = int(os.getenv("NUM_SALAS"))
+NUM_PESSOAS = int(os.getenv("NUM_PESSOAS"))
+
 console = Console()
 
-def interfaceGrafica(cidade):
-    console.clear()
-            
-    # Criando tabela para o corredor principal
-    corredor_table = Table(title="🚪 Corredor Principal", title_style="bold magenta")
-    corredor_table.add_column("Número de Pessoas", justify="center", style="bold yellow")
-    corredor_table.add_row(f"{random.randint(0, 20)}")
-    console.print(corredor_table, justify="center")
+def atualizar_interface(cidade):
+    dadosGerados = [[NUM_PESSOAS], [NUM_BLOCOS], [NUM_SALAS]]
+    PessoasCorredorPrincipal = cidade.getCorredor().getQuantidadePessoas()
+    Blocos = cidade.getlistaBlocos()
     
-    for i in range(4):  # 4 blocos fixos
-        bloco_table = Table(title=f"🏢 Bloco {i+1}", title_style="bold cyan", show_lines=True)
+    while True:
+        console.clear()
         
-        # Adicionando todas as 6 salas e o corredor
-        for j in range(1, 7):
-            bloco_table.add_column(f"🏠 Sala {j}", justify="center", style="bold green")
-        bloco_table.add_column("🚪 Corredor", justify="center", style="bold red")
+        #Gerando a tabela para os dados Gerados
+        geracaoDados = Table(title=f"{cidade.getNome()}", title_style="bold cyan", show_lines=True)
+        geracaoDados.add_column("Pessoas Criadas", justify="center", style="bold yellow")
+        geracaoDados.add_column("Blocos gerados", justify="center", style="bold yellow")
+        geracaoDados.add_column("Salas Geradas", justify="center", style="bold yellow")
+        geracaoDados.add_row(*[str(i[0]) for i in dadosGerados])
 
-        # Adicionando valores aleatórios para cada sala (2 linhas de ocupação)
-        bloco_table.add_row(*[str(random.randint(0, 10)) for _ in range(6)], str(random.randint(0, 15)))
+        console.print(geracaoDados, justify="center")
 
-        console.print(bloco_table, justify="center")
+        #Gerando a tabela para o Corredor Principal
+        CorredorPrincipal = Table(title="IF Goiano - Campus Morrinhos", title_style="bold cyan", show_lines=True)
+        CorredorPrincipal.add_column("🚪 Corredor Principal", justify="center", style="bold yellow")
+        CorredorPrincipal.add_row(PessoasCorredorPrincipal)
+        console.print(CorredorPrincipal, justify="center")
+        
+        #Gerando a tabela para os Blocos e Salas
+        for bloco in Blocos:  # 4 blocos fixos
+            blocoDados= Table(title=f"🏢 Bloco {bloco.getNome()}", title_style="bold cyan", show_lines=True)
 
-    time.sleep(1)
+            dadosSalas = []
+            
+            for sala in bloco.getListaSalas():
+                dadosSalas.append(sala.getQuantidadePessoas())
+                blocoDados.add_column(f"🏠 Sala {sala.getNome()}", justify="center", style="bold green")
+            blocoDados.add_column("🚪 Corredor", justify="center", style="bold red")
+            dadosSalas.append(bloco.getCorredor().getQuantidadePessoas())
+
+
+            blocoDados.add_row(*[str(i) for i in dadosSalas])
+
+            console.print(blocoDados, justify="center")
+
+        time.sleep(1)
