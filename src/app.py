@@ -20,9 +20,9 @@ for bloco in cidade.getlistaBlocos():
     listaPersonalizada.append(bloco)
 
 corredorPrincipal = cidade.getCorredor()
-while True:
-    print(cont)
-    time.sleep(1)
+timeInicial = time.time();
+
+while time.time() - timeInicial < TEMPO_EXECUCAO:
     corredorPrincipal.executaCorredor(cidade, listaPersonalizada)
 
     for b in cidade.getlistaBlocos():
@@ -30,11 +30,6 @@ while True:
             listaPersonalizada2.append(s)
         listaPersonalizada2.append(cidade.getCorredor())
         b.execucaoBlocos(cidade, listaPersonalizada2)
-        
-    if cont == 4:
-        break
-    cont = cont + 1
-
 
 imprimirCidade(cidade)
 print("Fim da simulação!")
