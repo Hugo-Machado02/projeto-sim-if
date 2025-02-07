@@ -1,4 +1,5 @@
 import time, os, threading
+from controller.interface import atualizar_interface
 from queue import Queue, Empty
 from controller.geraElementos import cricacaoElementos
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ MAX_PESSOAS_CORREDOR = int(os.getenv("MAX_PESSOAS_CORREDOR"))
 MAX_PESSOAS_SALAS = int(os.getenv("MAX_PESSOAS_SALAS"))
 THREADS = int(os.getenv("THREADS"))  # Máximo de threads simultâneas
 TEMPO_EXECUCAO = int(os.getenv("TEMPO_EXECUCAO"))
+CIDADE = cricacaoElementos(NUM_BLOCOS, NUM_SALAS, NUM_PESSOAS, MAX_PESSOAS_CORREDOR, MAX_PESSOAS_SALAS)
 
 app = Flask(__name__)
 fimThreads = threading.Event()
@@ -21,12 +23,11 @@ filaTarefas = Queue()
 
 def simulacao():
     #Gera elemenetos
-    cidade = cricacaoElementos(NUM_BLOCOS, NUM_SALAS, NUM_PESSOAS, MAX_PESSOAS_CORREDOR, MAX_PESSOAS_SALAS)
-    listaBlocos = cidade.getlistaBlocos()
+    listaBlocos = CIDADE.getlistaBlocos()
 
     # Função para adicionar a tarefa no semaforo
     def adicionar_tarefas():
-        filaTarefas.put((1, cidade.getCorredor()))
+        filaTarefas.put((1, CIDADE.getCorredor()))
         for bloco in listaBlocos:
             filaTarefas.put((2, bloco))
             for sala in bloco.getListaSalas():
@@ -79,10 +80,13 @@ def simulacao():
     print("Fim da simulação!")
 
 if __name__ == '__main__':
-
     # Thread para rodar o Flask
     flaskThread = threading.Thread(target=app.run, kwargs={'debug': False, 'threaded': True})
     flaskThread.start()
+
+    # Thread para rodar a interface gráfica no terminal
+    frontThread = threading.Thread(target=atualizar_interface, args=(CIDADE,), daemon=True)
+    frontThread.start()
 
     simulacao()
     os._exit(0)
