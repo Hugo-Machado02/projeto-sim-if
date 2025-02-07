@@ -20,74 +20,69 @@ semaforo = threading.Semaphore(THREADS)
 filaTarefas = Queue()
 
 def simulacao():
+    #Gera elemenetos
     cidade = cricacaoElementos(NUM_BLOCOS, NUM_SALAS, NUM_PESSOAS, MAX_PESSOAS_CORREDOR, MAX_PESSOAS_SALAS)
     listaBlocos = cidade.getlistaBlocos()
 
-    # Adiciona as tarefas iniciais na fila
+    # Função para adicionar a tarefa no semaforo
     def adicionar_tarefas():
-        filaTarefas.put(("corredor_principal", cidade.getCorredor()))
-
+        filaTarefas.put((1, cidade.getCorredor()))
         for bloco in listaBlocos:
-            filaTarefas.put(("corredor_bloco", bloco))
+            filaTarefas.put((2, bloco))
             for sala in bloco.getListaSalas():
-                filaTarefas.put(("sala", sala, [bloco.getCorredor()]))
+                filaTarefas.put((3, sala, [bloco.getCorredor()]))
 
     adicionar_tarefas()
 
     # Processamento das tarefas
     def listaTarefas():
         while not fimThreads.is_set():
-            try:
-                execucaoTarefa = filaTarefas.get(timeout=0.1)  # Reduz timeout para encerrar rapidamente
-            except Empty:
-                continue  # Se a fila estiver vazia, verifica fimThreads e tenta novamente
+            execucaoTarefa = filaTarefas.get(timeout=0.1)
 
             if fimThreads.is_set():
-                break  # Se o evento de fim foi ativado, interrompe imediatamente
+                break 
 
             tipo = execucaoTarefa[0]
 
+            #Direcionamento para a execução
             with semaforo:
-                if tipo == "corredor_principal":
+                if tipo == 1:
                     execucaoTarefa[1].executaCorredor(listaBlocos)
-                elif tipo == "corredor_bloco":
+                elif tipo == 2:
                     execucaoTarefa[1].getCorredor().executaCorredor(execucaoTarefa[1].getListaSalas())
-                elif tipo == "sala":
+                elif tipo == 3:
                     execucaoTarefa[1].executaSalas(execucaoTarefa[2])
 
+            #Execução das Tarefas
             if not fimThreads.is_set():
-                filaTarefas.put(execucaoTarefa)  # Reinsere a tarefa na fila apenas se fimThreads não foi ativado
+                filaTarefas.put(execucaoTarefa)
 
     # Criando as threads
     threads = []
-    for _ in range(THREADS):
-        t = threading.Thread(target=listaTarefas, daemon=True)
-        threads.append(t)
-        t.start()
+    for i in range(THREADS):
+        thread = threading.Thread(target=listaTarefas, daemon=True)
+        threads.append(thread)
+        thread.start()
 
     # Esperar o tempo de execução e depois encerrar
     time.sleep(TEMPO_EXECUCAO)
     fimThreads.set()  # Sinaliza para todas as threads pararem imediatamente
     print("Parando threads...")
 
-    # Inserir "sentinelas" para desbloquear todas as threads
-    for _ in range(THREADS):
+    #
+    for i in range(THREADS):
         filaTarefas.put(None)
 
-    # Aguarda todas as threads finalizarem
-    for t in threads:
-        t.join()
+    for thread in threads:
+        thread.join()
 
     print("Fim da simulação!")
 
 if __name__ == '__main__':
-    # Iniciar servidor Flask em uma thread separada
+
+    # Thread para rodar o Flask
     flaskThread = threading.Thread(target=app.run, kwargs={'debug': False, 'threaded': True})
     flaskThread.start()
 
-    # Executar simulação
     simulacao()
-
-    # Finalizar servidor Flask
-    print("Finalizando servidor Flask...")
     os._exit(0)
