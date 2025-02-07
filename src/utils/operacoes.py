@@ -2,6 +2,8 @@ def enviaLocal(pessoa, localAtual, ListaLocais):
     destino = pessoa.getDecisao(ListaLocais)
     localAtual.removePessoa(pessoa)
     destino.adicionaPessoa(pessoa)
+    print(f"{pessoa.getNome()} está saindo de '{localAtual.getNome()}' para {destino.getNome()}")
+    print("===============================================================================================")
 
 
 #Verifica se o usuário quer continuar no local
@@ -15,6 +17,7 @@ def imprimirCidade(cidade):
 
     print(f"\n\nCidade: {cidade.getNome()}")
     print(f"->Corredor Principal -> {corredorPrincipal.getQuantidadePessoas()} Pessoas")
+    
     for b in blocos:
         print(f"\t-> Bloco - {b.getNome()}")
         salas = b.getListaSalas()
