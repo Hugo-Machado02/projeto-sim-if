@@ -20,7 +20,7 @@ class Bloco:
     
     def adicionaPessoa(self, pessoa):
         self.getCorredor().adicionaPessoa(pessoa)
-         
+
     # Funções
     def adicionaSala(self, sala):
         self.__listaSalas.append(sala)
@@ -35,7 +35,7 @@ class Bloco:
     def execucaoBlocos(self, cidade, lista):
         if self.getCorredor().getListaPessoas():
             self.getCorredor().executaCorredor(cidade, lista, self.getNome())
-            time.sleep(1)
+            time.sleep(0.4)
 
         if self.__listaSalas:
             for sala in self.getListaSalas():
