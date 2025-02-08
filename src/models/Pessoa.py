@@ -27,3 +27,6 @@ class Pessoa:
     #Decisao da Pessoa
     def getDecisao(self, opcoes):
         return random.choice(opcoes)
+    
+    def decisaoSaida(self):
+        return random.choice([True, False])
