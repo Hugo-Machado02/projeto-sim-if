@@ -1,10 +1,4 @@
-from utils.operacoes import continuarLocal, enviaLocal, imprimirCidade
-from dotenv import load_dotenv
-import time, os
-
-load_dotenv()
-DELAY = float(os.getenv("TEMPO_DELAY"))
-
+from utils.operacoes import continuarLocal, enviaLocal, selecionaPessoa
 class Sala:
 
     def __init__(self, nome, capacidade):
@@ -69,12 +63,6 @@ class Sala:
         return len(self.getListaPessoas())
     
     def executaSalas(self, corredorBloco):
-        while True:
-            pessoas = self.getListaPessoas()
-            if pessoas:
-                for pessoa in pessoas:
-                    if not continuarLocal(pessoa):
-                        enviaLocal(pessoa, self, corredorBloco)
-                    time.sleep(DELAY)
-            else:
-                break
+        pessoa = selecionaPessoa(self.getListaPessoas())
+        if not continuarLocal(pessoa):
+            enviaLocal(pessoa, self, corredorBloco)

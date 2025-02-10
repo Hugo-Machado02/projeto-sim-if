@@ -1,10 +1,7 @@
 from models.Corredor import Corredor
-from utils.operacoes import continuarLocal, enviaLocal, imprimirCidade
-from dotenv import load_dotenv
-import time, os, requests
+from utils.operacoes import continuarLocal, enviaLocal, selecionaPessoa
 
-load_dotenv()
-DELAY = float(os.getenv("TEMPO_DELAY"))
+import requests
 
 class CorredorPrincipal(Corredor):
 
@@ -15,18 +12,11 @@ class CorredorPrincipal(Corredor):
         for pessoa in listaPessoas:
             self.adicionaPessoa(pessoa)
 
-    # Implementação do método abstrato
     def executaCorredor(self, listaDestinos):
-        while True:
-            pessoas = self.getListaPessoas()
-            if pessoas:
-                for pessoa in pessoas:
-                    if not continuarLocal(pessoa):
-                        enviaLocal(pessoa, self, listaDestinos)
-                        
-                    time.sleep(DELAY)
-            else:
-                break
+        listagem = listaDestinos
+        pessoa = selecionaPessoa(self.getListaPessoas())
+        if not continuarLocal(pessoa):
+            enviaLocal(pessoa, self, listagem)
             
     def processarPessoas(self, url_cidade=None):
         pessoas = self.getListaPessoas()
@@ -35,8 +25,8 @@ class CorredorPrincipal(Corredor):
             if pessoa.decisaoSaida():
                 print(f"{pessoa.getNome()} decidiu sair da cidade.")
                 if url_cidade:
-                    if self.enviarParaCidade(pessoa, url_cidade)
-                    self.removePessoa(pessoa)
+                    if self.enviarParaCidade(pessoa, url_cidade):
+                        self.removePessoa(pessoa)
             else:
                 print(f"{pessoa.getNome()} decidiu ficar na cidade.")
 
