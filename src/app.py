@@ -60,13 +60,13 @@ def TreadsSalas():
         threadSala.start()
 
 def finalizar_servidor():
-    time.sleep(60)
-    imprimirCidade()
+    time.sleep(TEMPO_EXECUCAO)
+    print("Fimulação Finalizada")
     os._exit(0)
+    
 
 @app.route('/')
 def Simulacao():
-    time.sleep(5)
     CorredorPrincipal = threading.Thread(target=corredorPrincipal)
     CorredorPrincipal.daemon = True
     CorredorPrincipal.start()
@@ -76,14 +76,12 @@ def Simulacao():
         CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,))
         CorredorBlocoThread.daemon = True
         listaThreadsBlocos.append(CorredorBlocoThread)
-    TreadsBlocos()
 
     for bloco in blocos:
         for sala in bloco.getListaSalas():
             salaThread = threading.Thread(target=salas, args=(sala, bloco,))
             salaThread.daemon = True
             listaThreadsSalas.append(salaThread)
-    TreadsSalas()
 
     frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
     frontThread.daemon = True
@@ -92,6 +90,8 @@ def Simulacao():
     finalizaThreads = threading.Thread(target=finalizar_servidor)
     finalizaThreads.daemon = True
     finalizaThreads.start()
+    TreadsBlocos()
+    TreadsSalas()
 
     return "Simulação em andamento!"
 
