@@ -46,6 +46,19 @@ def TreadsBlocos():
     for threadBloco in listaThreadsBlocos:
         threadBloco.start()
 
+def salas(sala, bloco):
+    corredor = bloco.getCorredor()
+    while True:
+        if sala.getQuantidadePessoas() > 0:
+            with semaforoSalas:
+                sala.executaSalas([corredor])
+        time.sleep(2)
+
+def TreadsSalas():
+    random.shuffle(listaThreadsSalas)
+    for threadSala in listaThreadsSalas:
+        threadSala.start()
+
 def finalizar_servidor():
     time.sleep(60)
     imprimirCidade()
@@ -64,6 +77,13 @@ def Simulacao():
         CorredorBlocoThread.daemon = True
         listaThreadsBlocos.append(CorredorBlocoThread)
     TreadsBlocos()
+
+    for bloco in blocos:
+        for sala in bloco.getListaSalas():
+            salaThread = threading.Thread(target=salas, args=(sala, bloco,))
+            salaThread.daemon = True
+            listaThreadsSalas.append(salaThread)
+    TreadsSalas()
 
     frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
     frontThread.daemon = True
