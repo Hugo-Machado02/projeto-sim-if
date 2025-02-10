@@ -26,6 +26,8 @@ class Pessoa:
             
     #Decisao da Pessoa
     def getDecisao(self, opcoes):
+        if not isinstance(opcoes, list):  # Garante que opcoes seja uma lista
+            opcoes = [opcoes]
         return random.choice(opcoes)
     
     def decisaoSaida(self):
