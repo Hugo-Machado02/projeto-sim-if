@@ -31,6 +31,21 @@ def corredorPrincipal():
             CorredorPrincipal.executaCorredor(listaDestinos)
         time.sleep(0.5)
 
+def CorredorBloco(bloco):
+    corredor = bloco.getCorredor()
+    destinosCorredor = bloco.getListaSalas()
+    corredorPrincipal =CIDADE.getCorredor()
+    while True:
+        if corredor.getQuantidadePessoas() > 0:
+            with semaforoBlocos:
+                corredor.executaCorredor(destinosCorredor, corredorPrincipal)
+        time.sleep(0.5)
+
+def TreadsBlocos():
+    random.shuffle(listaThreadsBlocos)
+    for threadBloco in listaThreadsBlocos:
+        threadBloco.start()
+
 def finalizar_servidor():
     time.sleep(60)
     imprimirCidade()
@@ -42,6 +57,13 @@ def Simulacao():
     CorredorPrincipal = threading.Thread(target=corredorPrincipal)
     CorredorPrincipal.daemon = True
     CorredorPrincipal.start()
+
+    blocos = CIDADE.getlistaBlocos()
+    for bloco in blocos:
+        CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,))
+        CorredorBlocoThread.daemon = True
+        listaThreadsBlocos.append(CorredorBlocoThread)
+    TreadsBlocos()
 
     frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
     frontThread.daemon = True
