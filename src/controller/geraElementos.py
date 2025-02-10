@@ -1,5 +1,4 @@
 from controller import criaCidade, criaPessoa, criaBloco
-import time
 
 #Realiza a criacão dos elementos para a simulacao
 def cricacaoElementos(numeroBlocos, numeroSalas, numeroPessoas, maxPessoasCorredor, maxPessoasSalas):
