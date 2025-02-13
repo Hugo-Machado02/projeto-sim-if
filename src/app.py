@@ -61,7 +61,7 @@ def TreadsSalas():
 
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
-    print("Fimulação Finalizada")
+    print("Simulação Finalizada")
     os._exit(0)
     
 
