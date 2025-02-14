@@ -35,10 +35,10 @@ def corredorPrincipal():
     while True:
         listaDestinos = CIDADE.getlistaBlocos()
         if CorredorPrincipal.getQuantidadePessoas() > 0:
-            nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
-            if nomePessoa != False:
-                print(f"----> {nomePessoa} Saiu da Cidade")
-                enviaDados(nomePessoa)
+            resultPessoa = CorredorPrincipal.executaCorredor(listaDestinos, CIDADES)
+            if resultPessoa != False:
+                conexaoCidade(resultPessoa[1])
+                enviaDados(resultPessoa[0])
         time.sleep(.5)
 
 def CorredorBloco(bloco):
@@ -120,9 +120,8 @@ def escolheCidade():
     return None
 
 # Conecta a uma cidade ativa
-def conexaoCidade():
+def conexaoCidade(cidade):
     while True:
-        cidade = escolheCidade()
         if cidade:
             caminho = f"http://{cidade}:5000"
             try:
@@ -145,7 +144,6 @@ def finalizar_servidor():
 
 threading.Thread(target=procurarCidades, daemon=True).start()
 threading.Thread(target=enviaBroadcast, daemon=True).start()
-threading.Thread(target=conexaoCidade, daemon=True).start()
 CorredorPrincipal = threading.Thread(target=corredorPrincipal)
 CorredorPrincipal.daemon = True
 CorredorPrincipal.start()
