@@ -7,7 +7,7 @@ import psutil
 from flask import Flask
 from flask_socketio import SocketIO
 
-PORTA = 5001
+PORTA = 5000
 CIDADES = {}
 conexaoClient = socketio.Client()
 
@@ -38,14 +38,26 @@ def index():
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("", PORTA))
-    
+    sock.settimeout(2)
+
     while True:
-        data, addr = sock.recvfrom(1024)
-        if data.decode() == "DISCOVERY":
-            sock.sendto(b"RESPONSE", addr)
-        elif data.decode() == "RESPONSE":
-            ip = addr[0]
-            CIDADES[ip] = time.time()
+        try:
+            print("Cidades ativas:", CIDADES)
+            data, addr = sock.recvfrom(1024)
+            print(f"Pacote recebido: {data.decode()} de {addr}")
+            
+            if data.decode() == "DISCOVERY":
+                sock.sendto(b"RESPONSE", addr)
+                ip = addr[0]
+                if ip not in CIDADES:
+                    CIDADES[ip] = time.time()  # Adiciona IP e timestamp
+                    print(f"Cidade {ip} encontrada e adicionada.")
+                else:
+                    print(f"Cidade {ip} já está na lista.")
+                print("Cidades ativas:", CIDADES)  # Exibindo os IPs armazenados após cada adição
+        except socket.timeout:
+            # Timeout ocorre se não houver resposta em 2 segundos
+            pass
 
 # Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
@@ -53,7 +65,8 @@ def enviaBroadcast():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     
     while True:
-        sock.sendto(b"DISCOVERY", ("<broadcast>", PORTA))
+        sock.sendto(b"DISCOVERY", ("255.255.255.255", PORTA))  # Usando o endereço de broadcast direto
+        print("Enviando Broadcast para descobrir cidades...")
         time.sleep(5)
 
 # Escolhe uma cidade na lista de cidades ativas
@@ -80,7 +93,9 @@ def conexaoCidade():
 def enviaDados():
     while True:
         if conexaoClient.connected:
-            conexaoClient.emit('mensagem', {'info': 'atualização'})
+            print("Enviando Dados")
+            conexaoClient.emit('mensagem', {'info': 'Olá, Teste de Cidades'})  # Envia a mensagem desejada
+            print("Mensagem 'Olá, Teste de Cidades' enviada")
         time.sleep(2)
 
 @conexaoClient.on('resposta')
