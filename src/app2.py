@@ -35,9 +35,8 @@ def configuraRangeIp():
 
 #Recebe uma mensagem e envia um retorno de volta
 @socketio.on('pessoa')
-def handle_mensagem(pessoa):
+def recebePessoa(pessoa):
     print(f"Uma nova pessoa entrou: {pessoa}")
-    socketio.emit('resposta', {'info': 'Pessoa Recebida!'})
     
 
 # Procura outras cidades na rede
@@ -48,7 +47,6 @@ def procurarCidades():
     MEUIP = configuraRangeIp()
 
     while True:
-        print("Cidades ativas:", CIDADES)
         data, ipLocalizado = sock.recvfrom(1024)
 
         if ipLocalizado[0] == MEUIP:
@@ -58,11 +56,7 @@ def procurarCidades():
             print(f"Resposta enviada para {ipLocalizado}")
             ip = ipLocalizado[0]
             if ip not in CIDADES:
-                CIDADES[ip] = time.time()  # Adiciona IP e timestamp
-                print(f"Cidade {ip} encontrada e adicionada.")
-            else:
-                print(f"Cidade {ip} já está na lista.")
-            print("Cidades ativas:", CIDADES)
+                CIDADES[ip] = time.time()
             
 #Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
@@ -106,8 +100,6 @@ def receber_dados(data):
     print(f"Pessoa recebida: {data}")
     
 # Iniciar threads
-
-
 semaforoBlocos = threading.Semaphore(7)
 semaforoSalas = threading.Semaphore(2)
 
@@ -119,7 +111,9 @@ def corredorPrincipal():
     while True:
         listaDestinos = CIDADE.getlistaBlocos()
         if CorredorPrincipal.getQuantidadePessoas() > 0:
-            CorredorPrincipal.executaCorredor(listaDestinos)
+            nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
+            if nomePessoa != False:
+                enviaDados(nomePessoa)
         time.sleep(0.5)
 
 def CorredorBloco(bloco):
@@ -161,31 +155,20 @@ def Simulacao():
     threading.Thread(target=procurarCidades, daemon=True).start()
     threading.Thread(target=enviaBroadcast, daemon=True).start()
     threading.Thread(target=conexaoCidade, daemon=True).start()
-    CorredorPrincipal = threading.Thread(target=corredorPrincipal)
-    CorredorPrincipal.daemon = True
-    CorredorPrincipal.start()
+    threading.Thread(target=corredorPrincipal, daemon=True).start()
 
     blocos = CIDADE.getlistaBlocos()
     for bloco in blocos:
-        CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,))
-        CorredorBlocoThread.daemon = True
-        listaThreadsBlocos.append(CorredorBlocoThread)
+        CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,), daemon=True).start()
     TreadsBlocos()
 
     for bloco in blocos:
         for sala in bloco.getListaSalas():
-            salaThread = threading.Thread(target=salas, args=(sala, bloco,))
-            salaThread.daemon = True
-            listaThreadsSalas.append(salaThread)
+            threading.Thread(target=salas, args=(sala, bloco,), daemon=True).start()
     TreadsSalas()
 
-    frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
-    frontThread.daemon = True
-    frontThread.start()
-
-    finalizaThreads = threading.Thread(target=finalizar_servidor)
-    finalizaThreads.daemon = True
-    finalizaThreads.start()
+    # threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True).start()
+    threading.Thread(target=finalizar_servidor, daemon=True).start()
 
     return "Simulação em andamento!"
 
