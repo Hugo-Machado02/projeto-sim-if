@@ -38,9 +38,10 @@ def configuraRangeIp():
     return None
 
 #Recebe uma mensagem e envia um retorno de volta
-@socketio.on('pessoa')
-def pessoaRecebida(data):
+@socketio.on('mensagem')
+def buscaPessoa(data):
     print(f"Pessoa Recebida: {data}")
+    socketio.emit('resposta', {'info': 'Mensagem processada'})
 
 def corredorPrincipal():
     CorredorPrincipal = CIDADE.getCorredor()
@@ -48,9 +49,9 @@ def corredorPrincipal():
         listaDestinos = CIDADE.getlistaBlocos()
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
-            if nomePessoa != False:
-                enviaDados(nomePessoa)
+            if nomePessoa != False and CIDADES:
                 print(f"{nomePessoa} Saiu da Cidade")
+                enviaDados(nomePessoa)
         time.sleep(0.5)
 
 def CorredorBloco(bloco):
@@ -84,7 +85,7 @@ def TreadsSalas():
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("", PORTA))
-    sock.settimeout(DELAY)
+    sock.settimeout(1)
     MEUIP = configuraRangeIp()
 
     while True:
@@ -95,14 +96,9 @@ def procurarCidades():
                 continue
 
             if data.decode() == "DISCOVERY":
-                print(f"Resposta enviada para {ipLocalizado}")
                 ip = ipLocalizado[0]
                 if ip not in CIDADES:
                     CIDADES[ip] = time.time()
-                    print(f"Cidade {ip} encontrada e adicionada.")
-                else:
-                    print(f"Cidade {ip} já está na lista.")
-                print("Cidades ativas:", CIDADES)
         except socket.timeout:
             print("Timeout alcançado, buscando novamente...")
             pass
@@ -133,15 +129,15 @@ def conexaoCidade():
                 print(f"Conexão realizada a {caminho}")
                 return
             except Exception as e:
-                print(f"Falha ao conectar a {caminho}: {e}")
+                print(f"Falha ao conectar a {caminho}")
         time.sleep(DELAY)
 
 # Envia uma mensagem ao Servidor
-def enviaDados(pessoa):
+def enviaDados(nomePessoa):
     while True:
         if conexaoClient.connected:
             print("Enviando Dados")
-            conexaoClient.emit('pessoa', {'info': pessoa})
+            conexaoClient.emit('pessoa', {'info': nomePessoa})
         time.sleep(DELAY)
 
 @conexaoClient.on('resposta')
