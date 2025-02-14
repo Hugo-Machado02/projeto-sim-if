@@ -1,11 +1,16 @@
-import time, os, threading, random
+import time, os, threading, random, psutil, socketio, socket
 from controller.geraElementos import cricacaoElementos
 from controller.interface import interfaceGrafica
 from utils.operacoes import imprimirCidade
 from dotenv import load_dotenv
 from flask import Flask
+from flask_socketio import SocketIO
 
 load_dotenv()
+
+DELAY = 5
+PORTA = 5001
+CIDADES = {}
 NUM_BLOCOS = int(os.getenv("NUM_BLOCOS"))
 NUM_SALAS = int(os.getenv("NUM_SALAS"))
 NUM_PESSOAS = int(os.getenv("NUM_PESSOAS"))
@@ -14,14 +19,29 @@ MAX_PESSOAS_SALAS = int(os.getenv("MAX_PESSOAS_SALAS"))
 THREADS = int(os.getenv("THREADS"))  # Máximo de threads simultâneas
 TEMPO_EXECUCAO = int(os.getenv("TEMPO_EXECUCAO"))
 CIDADE = cricacaoElementos(NUM_BLOCOS, NUM_SALAS, NUM_PESSOAS, MAX_PESSOAS_CORREDOR, MAX_PESSOAS_SALAS)
-
-app = Flask(__name__)
-
+conexaoClient = socketio.Client()
 semaforoBlocos = threading.Semaphore(7)
 semaforoSalas = threading.Semaphore(2)
-
 listaThreadsBlocos = []
 listaThreadsSalas = []
+
+#Inicia do servidor Flask com o SocketIO
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+#Pega o IP do radmin VPN
+def configuraRangeIp():
+    for interface, IPsLocalizados in psutil.net_if_addrs().items():
+        for ip in IPsLocalizados:
+            if ip.family == socket.AF_INET and ip.address.startswith("26."):
+                return ip.address
+    return None
+
+#Recebe uma mensagem e envia um retorno de volta
+@socketio.on('mensagem')
+def handle_mensagem(data):
+    print(f"📨 Mensagem recebida: {data}")
+    socketio.emit('resposta', {'info': 'Mensagem processada'})
 
 def corredorPrincipal():
     CorredorPrincipal = CIDADE.getCorredor()
@@ -61,41 +81,106 @@ def TreadsSalas():
     for threadSala in listaThreadsSalas:
         threadSala.start()
 
+def procurarCidades():
+    socketio.bind(("", PORTA))
+    socketio.settimeout(DELAY)
+    MEUIP = configuraRangeIp()
+
+    while True:
+        print("Cidades ativas:", CIDADES)
+        try:
+            data, ipLocalizado = socketio.recvfrom(1024)
+            if ipLocalizado[0] == MEUIP:
+                continue
+
+            if data.decode() == "DISCOVERY":
+                print(f"Resposta enviada para {ipLocalizado}")
+                ip = ipLocalizado[0]
+                if ip not in CIDADES:
+                    CIDADES[ip] = time.time()  # Adiciona IP e timestamp
+                    print(f"Cidade {ip} encontrada e adicionada.")
+                else:
+                    print(f"Cidade {ip} já está na lista.")
+                print("Cidades ativas:", CIDADES)
+        except socket.timeout:
+            pass  # Ignora o timeout e continua o loop
+
+#Vai enviar Broadcast para todas as cidades que se conectarem na rede
+def enviaBroadcast():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+    while True:
+        sock.sendto(b"DISCOVERY", ("255.255.255.255", PORTA))
+        time.sleep(DELAY)
+
+# Escolhe uma cidade na lista de cidades ativas
+def escolheCidade():
+    if CIDADES:
+        return random.choice(list(CIDADES.keys()))
+    return None
+
+# Conecta a uma cidade ativa
+def conexaoCidade():
+    while True:
+        cidade = escolheCidade()
+        if cidade:
+            caminho = f"http://{cidade}:5000"
+            try:
+                conexaoClient.connect(caminho)
+                print(f"Conexão realizada a {caminho}")
+                return
+            except Exception as e:
+                print(f"Falha ao conectar a {caminho}: {e}")
+        time.sleep(DELAY)
+
+# Envia uma mensagem ao Servidor
+def enviaDados():
+    while True:
+        if conexaoClient.connected:
+            print("Enviando Dados")
+            conexaoClient.emit('mensagem', {'info': 'Olá, Teste de Cidades'})
+        time.sleep(DELAY)
+
+@conexaoClient.on('resposta')
+def receber_dados(data):
+    print(f"Informação recebida: {data}")
+
+
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
     time.sleep(2)
     os._exit(0)
-    
 
-@app.route('/')
-def Simulacao():
-    CorredorPrincipal = threading.Thread(target=corredorPrincipal)
-    CorredorPrincipal.daemon = True
-    CorredorPrincipal.start()
+threading.Thread(target=procurarCidades, daemon=True).start()
+threading.Thread(target=enviaBroadcast, daemon=True).start()
+threading.Thread(target=conexaoCidade, daemon=True).start()
+CorredorPrincipal = threading.Thread(target=corredorPrincipal)
+CorredorPrincipal.daemon = True
+CorredorPrincipal.start()
 
-    blocos = CIDADE.getlistaBlocos()
-    for bloco in blocos:
-        CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,))
-        CorredorBlocoThread.daemon = True
-        listaThreadsBlocos.append(CorredorBlocoThread)
-    TreadsBlocos()
+blocos = CIDADE.getlistaBlocos()
+for bloco in blocos:
+    CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,))
+    CorredorBlocoThread.daemon = True
+    listaThreadsBlocos.append(CorredorBlocoThread)
+TreadsBlocos()
 
-    for bloco in blocos:
-        for sala in bloco.getListaSalas():
-            salaThread = threading.Thread(target=salas, args=(sala, bloco,))
-            salaThread.daemon = True
-            listaThreadsSalas.append(salaThread)
-    TreadsSalas()
+for bloco in blocos:
+    for sala in bloco.getListaSalas():
+        salaThread = threading.Thread(target=salas, args=(sala, bloco,))
+        salaThread.daemon = True
+        listaThreadsSalas.append(salaThread)
+TreadsSalas()
 
-    # frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
-    # frontThread.daemon = True
-    # frontThread.start()
+# frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
+# frontThread.daemon = True
+# frontThread.start()
 
-    finalizaThreads = threading.Thread(target=finalizar_servidor)
-    finalizaThreads.daemon = True
-    finalizaThreads.start()
-
-    return "Simulação em andamento!"
+finalizaThreads = threading.Thread(target=finalizar_servidor)
+finalizaThreads.daemon = True
+finalizaThreads.start()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    MEUIP = configuraRangeIp() or "0.0.0.0"
+    socketio.run(app, host=MEUIP, port=5000)
