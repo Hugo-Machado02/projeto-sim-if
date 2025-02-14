@@ -24,7 +24,7 @@ class CorredorPrincipal(Corredor):
                 else:
                     self.removePessoa(pessoa)
                     decisao = pessoa.getDecisao(cidades)
-                    return [decisao, pessoa.getNome()]
+                    return [decisao, pessoa]
             else:
                 enviaLocal(pessoa, self, listagem)
                 return False

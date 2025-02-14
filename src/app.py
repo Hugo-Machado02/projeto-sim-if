@@ -137,10 +137,10 @@ def conexaoCidade(cidade):
             print(f"Falha ao conectar a {caminho}: {e}")
 
 # Envia uma mensagem ao Servidor
-def enviaDados(nomePessoa):
+def enviaDados(pessoa):
     if conexaoClient.connected:
-        conexaoClient.emit('pessoa', {'nome': nomePessoa, 'cidade': CIDADE.getNome()},)
-        print(f"----> Enviando {nomePessoa} para a nova cidade")
+        conexaoClient.emit('pessoa', {'nome': pessoa.getNome(), 'cidade': pessoa.getOrigem()},)
+        print(f"----> Enviando {pessoa.getNome()} para a nova cidade")
 
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
