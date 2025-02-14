@@ -38,7 +38,7 @@ class Sala:
             return True
         
         else:
-            print("Sala Lotada de Alunos")
+            print(f"----> {self.getNome()} Lotada\n\n")
             return False
         
 
