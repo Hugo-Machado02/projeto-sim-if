@@ -11,6 +11,7 @@ def enviaLocal(pessoa, localAtual, ListaLocais):
 def continuarLocal(pessoa):
     return pessoa.getDecisao([True, False])
 
+
 #Seleciona a Pessoa
 def selecionaPessoa(pessoas):
     if isinstance(pessoas, list):

@@ -5,13 +5,16 @@ from utils.operacoes import imprimirCidade
 from dotenv import load_dotenv
 from flask import Flask
 from flask_socketio import SocketIO
+load_dotenv()
 
 DELAY = 5
 PORTA = 5000
 CIDADES = {}
+semaforoBlocos = threading.Semaphore(7)
+semaforoSalas = threading.Semaphore(2)
+listaThreadsBlocos = []
+listaThreadsSalas = []
 conexaoClient = socketio.Client()
-
-load_dotenv()
 NUM_BLOCOS = int(os.getenv("NUM_BLOCOS"))
 NUM_SALAS = int(os.getenv("NUM_SALAS"))
 NUM_PESSOAS = int(os.getenv("NUM_PESSOAS"))
@@ -41,22 +44,25 @@ def recebePessoa(pessoa):
 
 # Procura outras cidades na rede
 def procurarCidades():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(("", PORTA))
-    sock.settimeout(DELAY)
-    MEUIP = configuraRangeIp()
-
     while True:
-        data, ipLocalizado = sock.recvfrom(1024)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(("", PORTA))
+        sock.settimeout(1)
+        MEUIP = configuraRangeIp()
+        try:
+            data, ipLocalizado = sock.recvfrom(1024)
 
-        if ipLocalizado[0] == MEUIP:
-            continue
+            if ipLocalizado[0] == MEUIP:
+                continue
 
-        if data.decode() == "DISCOVERY":
-            print(f"Resposta enviada para {ipLocalizado}")
-            ip = ipLocalizado[0]
-            if ip not in CIDADES:
-                CIDADES[ip] = time.time()
+            if data.decode() == "DISCOVERY":
+                print(f"Resposta enviada para {ipLocalizado}")
+                ip = ipLocalizado[0]
+                if ip not in CIDADES:
+                    CIDADES[ip] = time.time()
+        except: 
+            print("Timeout alcançado, tentando novamente...")
+            pass
             
 #Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
@@ -78,6 +84,7 @@ def conexaoCidade():
     while True:
         cidade = escolheCidade()
         if cidade:
+            print(f"Escolhendo cidade: {cidade}")
             caminho = f"http://{cidade}:5000"
             try:
                 conexaoClient.connect(caminho)
@@ -87,7 +94,6 @@ def conexaoCidade():
                 print(f"Falha ao conectar a {caminho}: {e}")
         time.sleep(DELAY)
         
-# Envia uma mensagem ao Servidor
 def enviaDados(nome):
     while True:
         if conexaoClient.connected:
@@ -98,13 +104,6 @@ def enviaDados(nome):
 @conexaoClient.on('resposta')
 def receber_dados(data):
     print(f"Pessoa recebida: {data}")
-    
-# Iniciar threads
-semaforoBlocos = threading.Semaphore(7)
-semaforoSalas = threading.Semaphore(2)
-
-listaThreadsBlocos = []
-listaThreadsSalas = []
 
 def corredorPrincipal():
     CorredorPrincipal = CIDADE.getCorredor()
@@ -113,6 +112,7 @@ def corredorPrincipal():
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
             if nomePessoa != False:
+                print(f"{nomePessoa} Saiu da Cidade")
                 enviaDados(nomePessoa)
         time.sleep(0.5)
 
@@ -159,7 +159,7 @@ def Simulacao():
 
     blocos = CIDADE.getlistaBlocos()
     for bloco in blocos:
-        CorredorBlocoThread = threading.Thread(target=CorredorBloco, args=(bloco,), daemon=True).start()
+        threading.Thread(target=CorredorBloco, args=(bloco,), daemon=True).start()
     TreadsBlocos()
 
     for bloco in blocos:
@@ -172,7 +172,6 @@ def Simulacao():
 
     return "Simulação em andamento!"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
     MEUIP = configuraRangeIp() or "0.0.0.0"
     socketio.run(app, host=MEUIP, port=5000)
