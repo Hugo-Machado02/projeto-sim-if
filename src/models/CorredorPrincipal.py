@@ -23,5 +23,5 @@ class CorredorPrincipal(Corredor):
             else:
                 self.removePessoa(pessoa)
                 return pessoa.getNome()
-        print(f"\n-> {pessoa.getNome()} vai continuar no corredor principal\n===============================================================================================")
+        print(f"----> {pessoa.getNome()} Continua no {self.getNome()}")
         return False

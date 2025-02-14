@@ -28,7 +28,7 @@ class Corredor(ABC):
         if self.__listaPessoas:
             self.__listaPessoas.remove(pessoa)
         else:
-            print("Não há nenhuma pessoa no corredor!")
+           print(f"----> Náo h[a pessoas no {self.getNome()}")
     
     #implementação do método abstrato
     @abstractmethod

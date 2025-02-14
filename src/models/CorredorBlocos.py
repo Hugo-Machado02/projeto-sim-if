@@ -12,3 +12,5 @@ class CorredorBlocos(Corredor):
         decisao =  pessoa.getDecisao(lista)
         if not continuarLocal(pessoa):
             enviaLocal(pessoa, self, decisao)
+        else:
+            print(f"----> {pessoa.getNome()} Continua no {self.getNome()}")
