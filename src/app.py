@@ -9,7 +9,7 @@ from flask_socketio import SocketIO
 load_dotenv()
 
 DELAY = 5
-PORTA = 5001
+PORTA = 6000
 CIDADES = {}
 NUM_BLOCOS = int(os.getenv("NUM_BLOCOS"))
 NUM_SALAS = int(os.getenv("NUM_SALAS"))
@@ -82,14 +82,15 @@ def TreadsSalas():
         threadSala.start()
 
 def procurarCidades():
-    socketio.bind(("", PORTA))
-    socketio.settimeout(DELAY)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(("", PORTA))
+    sock.settimeout(DELAY)
     MEUIP = configuraRangeIp()
 
     while True:
         print("Cidades ativas:", CIDADES)
         try:
-            data, ipLocalizado = socketio.recvfrom(1024)
+            data, ipLocalizado = sock.recvfrom(1024)
             if ipLocalizado[0] == MEUIP:
                 continue
 
@@ -97,13 +98,14 @@ def procurarCidades():
                 print(f"Resposta enviada para {ipLocalizado}")
                 ip = ipLocalizado[0]
                 if ip not in CIDADES:
-                    CIDADES[ip] = time.time()  # Adiciona IP e timestamp
+                    CIDADES[ip] = time.time()
                     print(f"Cidade {ip} encontrada e adicionada.")
                 else:
                     print(f"Cidade {ip} já está na lista.")
                 print("Cidades ativas:", CIDADES)
         except socket.timeout:
-            pass  # Ignora o timeout e continua o loop
+            print("Timeout alcançado, buscando novamente...")
+            pass
 
 #Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
