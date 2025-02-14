@@ -12,16 +12,23 @@ class CorredorPrincipal(Corredor):
         for pessoa in listaPessoas:
             self.adicionaPessoa(pessoa)
 
-    def executaCorredor(self, listaDestinos):
+    def executaCorredor(self, listaDestinos, cidades):
         listagem = listaDestinos
         pessoa = selecionaPessoa(self.getListaPessoas())
         if not continuarLocal(pessoa):
             continuaCidade = continuarLocal(pessoa)
-            if(continuaCidade == True):
+            if cidades:
+                if continuaCidade == True:
+                    enviaLocal(pessoa, self, listagem)
+                    return False
+                else:
+                    self.removePessoa(pessoa)
+                    decisao = pessoa.getDecisao(cidades)
+                    return [decisao, pessoa.getNome()]
+            else:
                 enviaLocal(pessoa, self, listagem)
                 return False
-            else:
-                self.removePessoa(pessoa)
-                return pessoa.getNome()
-        print(f"----> {pessoa.getNome()} Continua no {self.getNome()}")
-        return False
+
+        else: 
+            print(f"----> {pessoa.getNome()} Continua no {self.getNome()}")
+            return False
