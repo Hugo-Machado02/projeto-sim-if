@@ -4,7 +4,7 @@ def enviaLocal(pessoa, localAtual, ListaLocais):
     destino = pessoa.getDecisao(ListaLocais)
     localAtual.removePessoa(pessoa)
     destino.adicionaPessoa(pessoa)
-    # print(f"\n-> {pessoa.getNome()} está saindo de '{localAtual.getNome()}' para {destino.getNome()}\n===============================================================================================")
+    print(f"\n-> {pessoa.getNome()} está saindo de '{localAtual.getNome()}' para {destino.getNome()}\n===============================================================================================")
 
 
 #Verifica se o usuário quer continuar no local
