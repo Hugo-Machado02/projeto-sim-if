@@ -38,10 +38,9 @@ def configuraRangeIp():
     return None
 
 #Recebe uma mensagem e envia um retorno de volta
-@socketio.on('mensagem')
-def handle_mensagem(data):
-    print(f"📨 Mensagem recebida: {data}")
-    socketio.emit('resposta', {'info': 'Mensagem processada'})
+@socketio.on('pessoa')
+def pessoaRecebida(data):
+    print(f"Pessoa Recebida: {data}")
 
 def corredorPrincipal():
     CorredorPrincipal = CIDADE.getCorredor()
@@ -50,6 +49,7 @@ def corredorPrincipal():
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
             if nomePessoa != False:
+                enviaDados(nomePessoa)
                 print(f"{nomePessoa} Saiu da Cidade")
         time.sleep(0.5)
 
@@ -137,11 +137,11 @@ def conexaoCidade():
         time.sleep(DELAY)
 
 # Envia uma mensagem ao Servidor
-def enviaDados():
+def enviaDados(pessoa):
     while True:
         if conexaoClient.connected:
             print("Enviando Dados")
-            conexaoClient.emit('mensagem', {'info': 'Olá, Teste de Cidades'})
+            conexaoClient.emit('pessoa', {'info': pessoa})
         time.sleep(DELAY)
 
 @conexaoClient.on('resposta')
