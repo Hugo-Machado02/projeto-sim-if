@@ -49,3 +49,4 @@ def interfaceGrafica(cidade):
             blocoDados.add_row(*[str(i) for i in dadosSalas])
 
             console.print(blocoDados, justify="center")
+        time.sleep(1)
