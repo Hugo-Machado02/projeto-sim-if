@@ -122,8 +122,8 @@ def escolheCidade():
 def conexaoCidade(cidade):
     ip = cidade[0]
     pessoa = cidade[1]
-    if cidade:
-        caminho = f"http://{cidade}:5000"
+    if ip:
+        caminho = f"http://{ip}:5000"
         try:
             conexaoClient.connect(caminho)
             print(f"Conexão realizada a {caminho}")
