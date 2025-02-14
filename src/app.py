@@ -136,7 +136,7 @@ def conexaoCidade():
 # Envia uma mensagem ao Servidor
 def enviaDados(nomePessoa):
     if conexaoClient.connected:
-        conexaoClient.emit('pessoa', {'nome': nomePessoa, 'nome': CIDADE.getNome()},)
+        conexaoClient.emit('pessoa', {'nome': nomePessoa, 'cidade': CIDADE.getNome()},)
 
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
