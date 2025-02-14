@@ -28,7 +28,9 @@ def corredorPrincipal():
     while True:
         listaDestinos = CIDADE.getlistaBlocos()
         if CorredorPrincipal.getQuantidadePessoas() > 0:
-            CorredorPrincipal.executaCorredor(listaDestinos)
+            nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
+            if nomePessoa != False:
+                print(f"{nomePessoa} Saiu da Cidade")
         time.sleep(0.5)
 
 def CorredorBloco(bloco):
@@ -85,9 +87,9 @@ def Simulacao():
             listaThreadsSalas.append(salaThread)
     TreadsSalas()
 
-    frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
-    frontThread.daemon = True
-    frontThread.start()
+    # frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
+    # frontThread.daemon = True
+    # frontThread.start()
 
     finalizaThreads = threading.Thread(target=finalizar_servidor)
     finalizaThreads.daemon = True
