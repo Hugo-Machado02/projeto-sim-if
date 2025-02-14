@@ -1,5 +1,6 @@
 import time, os, threading, random, psutil, socketio, socket
 from controller.geraElementos import cricacaoElementos
+from controller.criaPessoa import criacaoPessoasCidades
 from controller.interface import interfaceGrafica
 from utils.operacoes import imprimirCidade
 from dotenv import load_dotenv
@@ -36,7 +37,7 @@ def corredorPrincipal():
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
             if nomePessoa != False:
-                print(f"{nomePessoa} Saiu da Cidade")
+                print(f"----> {nomePessoa} Saiu da Cidade")
                 enviaDados(nomePessoa)
         time.sleep(.5)
 
@@ -78,7 +79,11 @@ def configuraRangeIp():
 #Recebe uma mensagem e envia um retorno de volta
 @socketio.on('pessoa')
 def buscaPessoa(data):
-    print(f"------>>>>>Pessoa Recebida: {data}")
+    nomePessoa = data.get('nome')  # Acessa o nome da pessoa
+    cidade = data.get('cidade')
+    pessoa = criacaoPessoasCidades(nomePessoa, cidade)
+    CIDADE.getCorredor().adicionaPessoa(pessoa)
+    print(f"----> {pessoa.getNome()} Entrou na Cidade")
 
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
