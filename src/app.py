@@ -37,8 +37,8 @@ def corredorPrincipal():
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             resultPessoa = CorredorPrincipal.executaCorredor(listaDestinos, CIDADES)
             if resultPessoa != False:
-                conexaoCidade(resultPessoa[1])
-                enviaDados(resultPessoa[0])
+                conexaoCidade(resultPessoa[0])
+                enviaDados(resultPessoa[1])
         time.sleep(.5)
 
 def CorredorBloco(bloco):
