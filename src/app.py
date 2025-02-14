@@ -38,7 +38,7 @@ def corredorPrincipal():
             if nomePessoa != False:
                 print(f"{nomePessoa} Saiu da Cidade")
                 enviaDados(nomePessoa)
-        time.sleep(1)
+        time.sleep(.5)
 
 def CorredorBloco(bloco):
     corredor = bloco.getCorredor()
@@ -78,8 +78,7 @@ def configuraRangeIp():
 #Recebe uma mensagem e envia um retorno de volta
 @socketio.on('pessoa')
 def buscaPessoa(data):
-    print(f"Pessoa Recebida: {data}")
-    socketio.emit('resposta', {'info': 'Mensagem processada'})
+    print(f"------>>>>>Pessoa Recebida: {data}")
 
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -88,7 +87,6 @@ def procurarCidades():
     MEUIP = configuraRangeIp()
 
     while True:
-        print("Cidades ativas:", CIDADES)
         try:
             data, ipLocalizado = sock.recvfrom(1024)
             if ipLocalizado[0] == MEUIP:
@@ -99,7 +97,6 @@ def procurarCidades():
                 if ip not in CIDADES:
                     CIDADES[ip] = time.time()
         except socket.timeout:
-            print("Timeout alcançado, buscando novamente...")
             pass
 
 #Vai enviar Broadcast para todas as cidades que se conectarem na rede
@@ -133,16 +130,8 @@ def conexaoCidade():
 
 # Envia uma mensagem ao Servidor
 def enviaDados(nomePessoa):
-    while True:
-        if conexaoClient.connected:
-            print(f"Enviando Dados de {nomePessoa}")
-            conexaoClient.emit('pessoa', {'info': nomePessoa})
-        time.sleep(DELAY)
-
-@conexaoClient.on('resposta')
-def receber_dados(data):
-    print(f"Informação recebida: {data}")
-
+    if conexaoClient.connected:
+        conexaoClient.emit('pessoa', {'info': nomePessoa})
 
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
@@ -170,7 +159,7 @@ for bloco in blocos:
         listaThreadsSalas.append(salaThread)
 TreadsSalas()
 
-# frontThread = threading.Thread(target=interfaceGrafica, args=(CIDADE,), daemon=True)
+# frontThread = threading.Thread(target=imprimirCidade, args=(CIDADE,), daemon=True)
 # frontThread.daemon = True
 # frontThread.start()
 
