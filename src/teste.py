@@ -13,6 +13,13 @@ conexaoClient = socketio.Client()
 # Inicialização do servidor Flask com o SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+#Recebe uma mensagem e envia um retorno de volta
+@socketio.on('mensagem')
+def handle_mensagem(data):
+    print(f"📨 Mensagem recebida: {data}")
+    socketio.emit('resposta', {'info': 'Mensagem processada'})
+
 #Procura outras cidades na rede
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
