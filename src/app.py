@@ -38,7 +38,7 @@ def configuraRangeIp():
     return None
 
 #Recebe uma mensagem e envia um retorno de volta
-@socketio.on('mensagem')
+@socketio.on('pessoa')
 def buscaPessoa(data):
     print(f"Pessoa Recebida: {data}")
     socketio.emit('resposta', {'info': 'Mensagem processada'})
