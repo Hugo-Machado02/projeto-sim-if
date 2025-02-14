@@ -13,7 +13,6 @@ conexaoClient = socketio.Client()
 # Inicialização do servidor Flask com o SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
-
 #Procura outras cidades na rede
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -43,14 +42,25 @@ def conexaoCidade():
                 conexaoClient.connect(cominho)
                 print(f"Conexáo realizada a {cominho}")
                 return
-            except Exception as erro:
-                print(f"Falha ao conectar a {cominho}: {erro}")
+            except Exception as e:
+                print(f"Falha ao conectar a {cominho}: {e}")
         time.sleep(5)
 
+#Envia uma mensagem ao Servidor
+def enviaDados():
+    while True:
+        if conexaoClient.connected:
+            conexaoClient.emit('mensagem', {'info': 'atualização'})
+        time.sleep(2)
+
+@conexaoClient.on('resposta')
+def receber_dados(data):
+    print(f"Informação recebida: {data}")
 
 # Iniciar threads
 threading.Thread(target=procurarCidades, daemon=True).start()
 threading.Thread(target=conexaoCidade, daemon=True).start()
+threading.Thread(target=enviaDados, daemon=True).start()
 
 # Iniciar o servidor WebSocket
 if __name__ == "__main__":
