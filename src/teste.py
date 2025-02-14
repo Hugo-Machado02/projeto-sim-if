@@ -3,6 +3,7 @@ import threading
 import time
 import random
 import socketio
+import psutil
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -14,13 +15,26 @@ conexaoClient = socketio.Client()
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-#Recebe uma mensagem e envia um retorno de volta
+# Pega o IP do radmin VPN
+def get_radmin_ip():
+    for interface, addrs in psutil.net_if_addrs().items():
+        for addr in addrs:
+            if addr.family == socket.AF_INET and addr.address.startswith("26."):
+                return addr.address
+    return None
+
+# Recebe uma mensagem e envia um retorno de volta
 @socketio.on('mensagem')
 def handle_mensagem(data):
     print(f"📨 Mensagem recebida: {data}")
     socketio.emit('resposta', {'info': 'Mensagem processada'})
 
-#Procura outras cidades na rede
+# Rota principal que retorna a mensagem "Servidor Rodando"
+@app.route('/')
+def index():
+    return "Servidor Rodando"
+
+# Procura outras cidades na rede
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("", PORTA))
@@ -33,7 +47,7 @@ def procurarCidades():
             ip = addr[0]
             CIDADES[ip] = time.time()
 
-#Vai enviar Broadcast para todas as cidades que se conectarem na rede
+# Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -42,27 +56,27 @@ def enviaBroadcast():
         sock.sendto(b"DISCOVERY", ("<broadcast>", PORTA))
         time.sleep(5)
 
-#Escolhe uma cidade na lista de cidades ativas
+# Escolhe uma cidade na lista de cidades ativas
 def escolheCidade():
     if CIDADES:
         return random.choice(list(CIDADES.keys()))
     return None
 
-#conecta a uma cidade ativa
+# Conecta a uma cidade ativa
 def conexaoCidade():
     while True:
         cidade = escolheCidade()
         if cidade:
-            cominho = f"http://{cidade}:5000"
+            caminho = f"http://{cidade}:5000"
             try:
-                conexaoClient.connect(cominho)
-                print(f"Conexáo realizada a {cominho}")
+                conexaoClient.connect(caminho)
+                print(f"Conexão realizada a {caminho}")
                 return
             except Exception as e:
-                print(f"Falha ao conectar a {cominho}: {e}")
+                print(f"Falha ao conectar a {caminho}: {e}")
         time.sleep(5)
 
-#Envia uma mensagem ao Servidor
+# Envia uma mensagem ao Servidor
 def enviaDados():
     while True:
         if conexaoClient.connected:
@@ -81,8 +95,5 @@ threading.Thread(target=enviaDados, daemon=True).start()
 
 # Iniciar o servidor WebSocket
 if __name__ == "__main__":
-    threading.Thread(target=lambda: socketio.run(app, host="0.0.0.0", port=5000), daemon=True).start()
-
-# Mantém o programa rodando
-while True:
-    time.sleep(1)
+    MEUIP = get_radmin_ip() or "0.0.0.0"
+    socketio.run(app, host=MEUIP, port=5000)
