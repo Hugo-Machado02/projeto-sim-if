@@ -140,6 +140,7 @@ def conexaoCidade(cidade):
 def enviaDados(nomePessoa):
     if conexaoClient.connected:
         conexaoClient.emit('pessoa', {'nome': nomePessoa, 'cidade': CIDADE.getNome()},)
+        print(f"----> Enviando {nomePessoa} para a nova cidade")
 
 def finalizar_servidor():
     time.sleep(TEMPO_EXECUCAO)
