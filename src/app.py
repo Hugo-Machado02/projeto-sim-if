@@ -37,8 +37,7 @@ def corredorPrincipal():
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             resultPessoa = CorredorPrincipal.executaCorredor(listaDestinos, list(CIDADES.keys()))
             if resultPessoa != False:
-                conexaoCidade(resultPessoa[0])
-                enviaDados(resultPessoa[1])
+                conexaoCidade(resultPessoa)
         time.sleep(.5)
 
 def CorredorBloco(bloco):
@@ -121,16 +120,21 @@ def escolheCidade():
 
 # Conecta a uma cidade ativa
 def conexaoCidade(cidade):
-    while True:
-        if cidade:
-            caminho = f"http://{cidade}:5000"
-            try:
-                conexaoClient.connect(caminho)
-                print(f"Conexão realizada a {caminho}")
-                return
-            except Exception as e:
-                print(f"Falha ao conectar a {caminho}")
-        time.sleep(DELAY)
+    ip = cidade[0]
+    pessoa = cidade[1]
+    if cidade:
+        caminho = f"http://{cidade}:5000"
+        try:
+            conexaoClient.connect(caminho)
+            print(f"Conexão realizada a {caminho}")
+            
+            enviaDados(pessoa)
+
+            conexaoClient.disconnect()
+            print(f"Desconectado de {caminho}")
+            
+        except Exception as e:
+            print(f"Falha ao conectar a {caminho}: {e}")
 
 # Envia uma mensagem ao Servidor
 def enviaDados(nomePessoa):
