@@ -26,6 +26,15 @@ def procurarCidades():
             ip = addr[0]
             CIDADES[ip] = time.time()
 
+#Vai enviar Broadcast para todas as cidades que se conectarem na rede
+def enviaBroadcast():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    
+    while True:
+        sock.sendto(b"DISCOVERY", ("<broadcast>", PORTA))
+        time.sleep(5)
+
 #Escolhe uma cidade na lista de cidades ativas
 def escolheCidade():
     if CIDADES:
@@ -59,6 +68,7 @@ def receber_dados(data):
 
 # Iniciar threads
 threading.Thread(target=procurarCidades, daemon=True).start()
+threading.Thread(target=enviaBroadcast, daemon=True).start()
 threading.Thread(target=conexaoCidade, daemon=True).start()
 threading.Thread(target=enviaDados, daemon=True).start()
 
