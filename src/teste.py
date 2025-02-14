@@ -7,23 +7,24 @@ import psutil
 from flask import Flask
 from flask_socketio import SocketIO
 
+DELAY = 5
 PORTA = 5000
 CIDADES = {}
 conexaoClient = socketio.Client()
 
-# Inicialização do servidor Flask com o SocketIO
+#Inicia do servidor Flask com o SocketIO
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Pega o IP do radmin VPN
-def get_radmin_ip():
-    for interface, addrs in psutil.net_if_addrs().items():
-        for addr in addrs:
-            if addr.family == socket.AF_INET and addr.address.startswith("26."):
-                return addr.address
+#Pega o IP do radmin VPN
+def configuraRangeIp():
+    for interface, IPsLocalizados in psutil.net_if_addrs().items():
+        for ip in IPsLocalizados:
+            if ip.family == socket.AF_INET and ip.address.startswith("26."):
+                return ip.address
     return None
 
-# Recebe uma mensagem e envia um retorno de volta
+#Recebe uma mensagem e envia um retorno de volta
 @socketio.on('mensagem')
 def handle_mensagem(data):
     print(f"📨 Mensagem recebida: {data}")
@@ -38,36 +39,34 @@ def index():
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("", PORTA))
-    sock.settimeout(2)
+    sock.settimeout(DELAY)
+    MEUIP = configuraRangeIp()
 
     while True:
-        try:
-            print("Cidades ativas:", CIDADES)
-            data, addr = sock.recvfrom(1024)
-            print(f"Pacote recebido: {data.decode()} de {addr}")
-            
-            if data.decode() == "DISCOVERY":
-                sock.sendto(b"RESPONSE", addr)
-                ip = addr[0]
-                if ip not in CIDADES:
-                    CIDADES[ip] = time.time()  # Adiciona IP e timestamp
-                    print(f"Cidade {ip} encontrada e adicionada.")
-                else:
-                    print(f"Cidade {ip} já está na lista.")
-                print("Cidades ativas:", CIDADES)  # Exibindo os IPs armazenados após cada adição
-        except socket.timeout:
-            # Timeout ocorre se não houver resposta em 2 segundos
-            pass
+        print("Cidades ativas:", CIDADES)
+        data, ipLocalizado = sock.recvfrom(1024)
 
-# Vai enviar Broadcast para todas as cidades que se conectarem na rede
+        if ipLocalizado[0] == MEUIP:
+            continue
+
+        if data.decode() == "DISCOVERY":
+            print(f"Resposta enviada para {ipLocalizado}")
+            ip = ipLocalizado[0]
+            if ip not in CIDADES:
+                CIDADES[ip] = time.time()  # Adiciona IP e timestamp
+                print(f"Cidade {ip} encontrada e adicionada.")
+            else:
+                print(f"Cidade {ip} já está na lista.")
+            print("Cidades ativas:", CIDADES)
+
+#Vai enviar Broadcast para todas as cidades que se conectarem na rede
 def enviaBroadcast():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    
+
     while True:
-        sock.sendto(b"DISCOVERY", ("255.255.255.255", PORTA))  # Usando o endereço de broadcast direto
-        print("Enviando Broadcast para descobrir cidades...")
-        time.sleep(5)
+        sock.sendto(b"DISCOVERY", ("255.255.255.255", PORTA))
+        time.sleep(DELAY)
 
 # Escolhe uma cidade na lista de cidades ativas
 def escolheCidade():
@@ -87,16 +86,15 @@ def conexaoCidade():
                 return
             except Exception as e:
                 print(f"Falha ao conectar a {caminho}: {e}")
-        time.sleep(5)
+        time.sleep(DELAY)
 
 # Envia uma mensagem ao Servidor
 def enviaDados():
     while True:
         if conexaoClient.connected:
             print("Enviando Dados")
-            conexaoClient.emit('mensagem', {'info': 'Olá, Teste de Cidades'})  # Envia a mensagem desejada
-            print("Mensagem 'Olá, Teste de Cidades' enviada")
-        time.sleep(2)
+            conexaoClient.emit('mensagem', {'info': 'Olá, Teste de Cidades'})
+        time.sleep(DELAY)
 
 @conexaoClient.on('resposta')
 def receber_dados(data):
@@ -110,5 +108,5 @@ threading.Thread(target=enviaDados, daemon=True).start()
 
 # Iniciar o servidor WebSocket
 if __name__ == "__main__":
-    MEUIP = get_radmin_ip() or "0.0.0.0"
+    MEUIP = configuraRangeIp() or "0.0.0.0"
     socketio.run(app, host=MEUIP, port=5000)
