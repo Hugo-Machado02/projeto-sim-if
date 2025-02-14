@@ -29,30 +29,16 @@ listaThreadsSalas = []
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-#Pega o IP do radmin VPN
-def configuraRangeIp():
-    for interface, IPsLocalizados in psutil.net_if_addrs().items():
-        for ip in IPsLocalizados:
-            if ip.family == socket.AF_INET and ip.address.startswith("26."):
-                return ip.address
-    return None
-
-#Recebe uma mensagem e envia um retorno de volta
-@socketio.on('pessoa')
-def buscaPessoa(data):
-    print(f"Pessoa Recebida: {data}")
-    socketio.emit('resposta', {'info': 'Mensagem processada'})
-
 def corredorPrincipal():
     CorredorPrincipal = CIDADE.getCorredor()
     while True:
         listaDestinos = CIDADE.getlistaBlocos()
         if CorredorPrincipal.getQuantidadePessoas() > 0:
             nomePessoa = CorredorPrincipal.executaCorredor(listaDestinos)
-            if nomePessoa != False and CIDADES:
+            if nomePessoa != False:
                 print(f"{nomePessoa} Saiu da Cidade")
                 enviaDados(nomePessoa)
-        time.sleep(0.5)
+        time.sleep(1)
 
 def CorredorBloco(bloco):
     corredor = bloco.getCorredor()
@@ -81,6 +67,19 @@ def TreadsSalas():
     random.shuffle(listaThreadsSalas)
     for threadSala in listaThreadsSalas:
         threadSala.start()
+#Pega o IP do radmin VPN
+def configuraRangeIp():
+    for interface, IPsLocalizados in psutil.net_if_addrs().items():
+        for ip in IPsLocalizados:
+            if ip.family == socket.AF_INET and ip.address.startswith("26."):
+                return ip.address
+    return None
+
+#Recebe uma mensagem e envia um retorno de volta
+@socketio.on('pessoa')
+def buscaPessoa(data):
+    print(f"Pessoa Recebida: {data}")
+    socketio.emit('resposta', {'info': 'Mensagem processada'})
 
 def procurarCidades():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -136,7 +135,7 @@ def conexaoCidade():
 def enviaDados(nomePessoa):
     while True:
         if conexaoClient.connected:
-            print("Enviando Dados")
+            print(f"Enviando Dados de {nomePessoa}")
             conexaoClient.emit('pessoa', {'info': nomePessoa})
         time.sleep(DELAY)
 
